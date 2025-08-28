@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualização Chuva Carnaúba</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+  <style>
+    #main { width: 900px; height: 500px; margin: 40px auto; }
+    h1 { text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Visualização do Total de Chuvas Anual na Fazenda Carnaúba, em Taperoá-PB</h1>
+  <div id="main"></div>
+  <script>
+    const dataset = [
+      { ano: '2015', total_chuva_mm: 386.7 },
+      { ano: '2016', total_chuva_mm: 295.0 },
+      { ano: '2017', total_chuva_mm: 211.5 },
+      { ano: '2018', total_chuva_mm: 764.8 },
+      { ano: '2019', total_chuva_mm: 497.9 },
+      { ano: '2020', total_chuva_mm: 591.3 },
+      { ano: '2021', total_chuva_mm: 388.5 },
+      { ano: '2022', total_chuva_mm: 938.6 },
+      { ano: '2023', total_chuva_mm: 465.6 },
+      { ano: '2024', total_chuva_mm: 378.2 }
+    ];
+
+    const anos = dataset.map(d => d.ano);
+    const totaisChuva = dataset.map(d => d.total_chuva_mm);
+
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' }
+      },
+      grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+      xAxis: [
+        {
+          type: 'category',
+          data: anos,
+          axisTick: { alignWithLabel: true }
+        }
+      ],
+      yAxis: [
+        {
+          type: 'value'
+        }
+      ],
+      series: [
+        {
+          name: 'Total Chuva (mm)',
+          type: 'bar',
+          barWidth: '60%',
+          data: totaisChuva
+        }
+      ],
+      dataZoom: [
+        {
+          type: 'slider',
+          show: true,
+          xAxisIndex: 0,
+          start: 0,
+          end: 100
+        },
+        {
+          type: 'inside', // Permite zoom com scroll do mouse
+          xAxisIndex: 0,
+          start: 0,
+          end: 100
+        }
+      ]
+    };
+
+    const chart = echarts.init(document.getElementById('main'));
+    chart.setOption(option);
+  </script>
+</body>
+</html>
