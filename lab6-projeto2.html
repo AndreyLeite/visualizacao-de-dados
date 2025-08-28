@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Variação Anual do Total de Chuvas - Fazenda Carnaúba</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+  <style>
+    #main { width: 900px; height: 500px; margin: 40px auto; }
+    h1 { text-align: center; }
+    .filtro { width: 900px; margin: 20px auto; text-align: center; }
+    label { margin: 0 10px; }
+  </style>
+</head>
+<body>
+  <h1>Variação Anual do Total de Chuvas na Fazenda Carnaúba, Taperoá-PB</h1>
+  <div class="filtro">
+    <label for="anoInicio">Ano inicial:</label>
+    <select id="anoInicio"></select>
+    <label for="anoFim">Ano final:</label>
+    <select id="anoFim"></select>
+    <label for="tipoVariacao">Variação:</label>
+    <select id="tipoVariacao">
+      <option value="todas">Todas</option>
+      <option value="negativas">Negativas</option>
+      <option value="positivas">Positivas</option>
+    </select>
+    <button id="filtrar">Filtrar</button>
+  </div>
+  <div id="main"></div>
+  <script>
+    const dataset = [
+      { ano: '2014', total_chuva_mm: 404.6 },
+      { ano: '2015', total_chuva_mm: 386.7 },
+      { ano: '2016', total_chuva_mm: 295.0 },
+      { ano: '2017', total_chuva_mm: 211.5 },
+      { ano: '2018', total_chuva_mm: 764.8 },
+      { ano: '2019', total_chuva_mm: 497.9 },
+      { ano: '2020', total_chuva_mm: 591.3 },
+      { ano: '2021', total_chuva_mm: 388.5 },
+      { ano: '2022', total_chuva_mm: 938.6 },
+      { ano: '2023', total_chuva_mm: 465.6 },
+      { ano: '2024', total_chuva_mm: 378.2 }
+    ];
+
+    const anos = dataset.map(d => d.ano);
+
+    const anoInicioSelect = document.getElementById('anoInicio');
+    const anoFimSelect = document.getElementById('anoFim');
+    anos.forEach(ano => {
+      const opt1 = document.createElement('option');
+      opt1.value = ano;
+      opt1.textContent = ano;
+      anoInicioSelect.appendChild(opt1);
+
+      const opt2 = document.createElement('option');
+      opt2.value = ano;
+      opt2.textContent = ano;
+      anoFimSelect.appendChild(opt2);
+    });
+    anoInicioSelect.value = anos[0];
+    anoFimSelect.value = anos[anos.length - 1];
+
+    function filtrarDataset(anoInicio, anoFim) {
+      return dataset.filter(d => d.ano >= anoInicio && d.ano <= anoFim);
+    }
+
+    function calcularVariacoes(dados) {
+      const variacoes = [];
+      for (let i = 1; i < dados.length; i++) {
+        variacoes.push({
+          ano: `${dados[i-1].ano}→${dados[i].ano}`,
+          variacao: dados[i].total_chuva_mm - dados[i-1].total_chuva_mm
+        });
+      }
+      return variacoes;
+    }
+
+    function filtrarVariacoes(variacoes, tipo) {
+      if (tipo === 'negativas') {
+        return variacoes.filter(v => v.variacao < 0);
+      } else if (tipo === 'positivas') {
+        return variacoes.filter(v => v.variacao > 0);
+      }
+      return variacoes;
+    }
+
+    function atualizarGrafico() {
+      const anoInicio = anoInicioSelect.value;
+      const anoFim = anoFimSelect.value;
+      const tipoVariacao = document.getElementById('tipoVariacao').value;
+      const dadosFiltrados = filtrarDataset(anoInicio, anoFim);
+      let variacoes = calcularVariacoes(dadosFiltrados);
+      variacoes = filtrarVariacoes(variacoes, tipoVariacao);
+
+      const anosVariacao = variacoes.map(v => v.ano);
+      const valoresVariacao = variacoes.map(v => v.variacao);
+
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' }
+        },
+        grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+        xAxis: [
+          {
+            type: 'category',
+            data: anosVariacao,
+            axisTick: { alignWithLabel: true }
+          }
+        ],
+        yAxis: [
+          {
+            type: 'value',
+            name: 'Variação (mm)'
+          }
+        ],
+        series: [
+          {
+            name: 'Variação Total Chuva (mm)',
+            type: 'bar',
+            barWidth: '60%',
+            data: valoresVariacao
+          }
+        ],
+        dataZoom: [
+          {
+            type: 'slider',
+            show: true,
+            xAxisIndex: 0,
+            start: 0,
+            end: 100
+          },
+          {
+            type: 'inside',
+            xAxisIndex: 0,
+            start: 0,
+            end: 100
+          }
+        ]
+      };
+
+      chart.setOption(option);
+    }
+
+    const chart = echarts.init(document.getElementById('main'));
+    atualizarGrafico();
+
+    document.getElementById('filtrar').onclick = atualizarGrafico;
+  </script>
+</body>
+</html>
